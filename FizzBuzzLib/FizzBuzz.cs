@@ -3,33 +3,62 @@ using System.Collections.Generic;
 
 namespace FizzBuzzLib
 {
-    public class FizzBuzz : IFizzBuzz, IFizzBuzzRange
+    public class FizzBuzz : IFizzBuzz, IFizzBuzzRange, IFlexiFizzBuzz
     {
-        // returns "Fizz" if divisible by 3, "Buzz" if divisible by 5,
-        // "FizzBuzz" if divisible by both; otherwise, the number as a string
-        public string FizzBuzzifyAnInt(int input)
+        // field for ReplacementPairs property
+        private Dictionary<int, string> _replacementPairs = new Dictionary<int, string>
         {
-            if (input % 3 == 0 && input % 5 == 0)
-                return "FizzBuzz";
-            if (input % 3 == 0)
-                return "Fizz";
-            if (input % 5 == 0)
-                return "Buzz";
+            { 3, "Fizz" },
+            { 5, "Buzz" }
+        };
 
-            return input.ToString();
+        // property for ReplacementPairs dictionary
+        public Dictionary<int, string> ReplacementPairs
+        {
+            get => _replacementPairs;
+            private set => _replacementPairs = value;
         }
 
-        // returns FizzBuzz results for all numbers in a range
-        // throws error if start or end is negative, or if end < start
+        // set a custom dictionary for replacements
+        public void SetDictionary(Dictionary<int, string> dictionary)
+        {
+            if (dictionary == null || dictionary.Count == 0)
+            {
+                throw new ArgumentException("Dictionary cannot be null or empty.");
+            }
+
+            ReplacementPairs = dictionary;
+        }
+
+        // implements basic fizzvuzz logic using the ReplacementPairs dictionary
+        public string FizzBuzzifyAnInt(int input)
+        {
+            string result = string.Empty;
+
+            foreach (var pair in ReplacementPairs)
+            {
+                if (input % pair.Key == 0)
+                {
+                    result += pair.Value;
+                }
+            }
+
+            return string.IsNullOrEmpty(result) ? input.ToString() : result;
+        }
+
+        // implement fizzbuzz logic for a range
         public IEnumerable<string> FizzBuzzValuesForRange(int start, int end)
         {
             if (start < 0 || end < 0)
-                throw new ArgumentException("Start and end cannot be negative.");
+            {
+                throw new ArgumentException("Start and end values must be non-negative.");
+            }
             if (end < start)
-                throw new ArgumentException("End cannot be less than start.");
+            {
+                throw new ArgumentException("End value must not be less than the start value.");
+            }
 
             var results = new List<string>();
-
             for (int i = start; i <= end; i++)
             {
                 results.Add(FizzBuzzifyAnInt(i));
